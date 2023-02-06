@@ -31,6 +31,8 @@ contract NftMarket is ERC721Holder, Ownable, ReentrancyGuard {
     mapping(address => mapping(address => EnumerableSet.UintSet))
         private _tokenIdsOfSellerForCollection;
 
+    mapping(address => mapping(uint256 => Auction)) private _auctionDetails;
+
     mapping(address => mapping(uint256 => Order)) private _orderDetails;
     mapping(address => EnumerableSet.UintSet) private _orderTokenIds;
 
@@ -39,6 +41,13 @@ contract NftMarket is ERC721Holder, Ownable, ReentrancyGuard {
         address creator;
         uint256 marketFee; // market fee (100 = 1%, 500 = 5%, 5 = 0.05%)
         uint256 creatorFee; // creator fee (100 = 1%, 500 = 5%, 5 = 0.05%)
+    }
+
+    struct Auction {
+        address highestBidder;
+        uint256 startingPrice;
+        uint256 highestPrice;
+        uint256 endTime;
     }
 
     struct Order {
@@ -76,6 +85,20 @@ contract NftMarket is ERC721Holder, Ownable, ReentrancyGuard {
     );
 
     event RevenueClaim(address indexed claimer, uint256 amount);
+
+    event AddAuction(
+        address indexed collection,
+        address indexed seller,
+        uint256 indexed tokenId,
+        uint256 startingPrice,
+        uint256 endTime
+    );
+
+    event CancelAuction(
+        address indexed collection,
+        address indexed seller,
+        uint256 indexed tokenId
+    );
 
     // Admin Event
     event AddCollection(
@@ -263,7 +286,8 @@ contract NftMarket is ERC721Holder, Ownable, ReentrancyGuard {
         require(revenueToClaim != 0, "Claim: Nothing to claim");
         pendingRevenue[msg.sender] = 0;
 
-        IERC20(WBNB).safeTransfer(address(msg.sender), revenueToClaim);
+        (bool sent, ) = payable(msg.sender).call{value: revenueToClaim}("");
+        require(sent, "Failed to send Ether");
 
         emit RevenueClaim(msg.sender, revenueToClaim);
     }
@@ -290,6 +314,79 @@ contract NftMarket is ERC721Holder, Ownable, ReentrancyGuard {
         netPrice = _price - marketFee - creatorFee;
 
         return (netPrice, marketFee, creatorFee);
+    }
+
+    /**
+     * @notice 경매를 추가한다.
+     * @param _collection: 컬렉션 주소
+     * @param _tokenId: 토큰 아이디
+     * @param _startingPrice: 경매 시작가
+     * @param _endTime: 경매 종료시간
+     */
+    function addAuction(
+        address _collection,
+        uint256 _tokenId,
+        uint256 _startingPrice,
+        uint256 _endTime
+    ) external nonReentrant {
+        require(
+            !_collectionAddressSet.contains(_collection),
+            "Operations: Collection already listed"
+        );
+        require(
+            IERC721(_collection).supportsInterface(0x80ac58cd),
+            "Operations: Not ERC721"
+        );
+        require(
+            IERC721(_collection).ownerOf(_tokenId) == msg.sender,
+            "Operations: Not Token Owner"
+        );
+        require(
+            block.timestamp > _endTime,
+            "Auction: endTime More Than block timestamp"
+        );
+
+        _auctionDetails[_collection][_tokenId] = Auction({
+            highestBidder: address(0),
+            startingPrice: _startingPrice,
+            highestPrice: _startingPrice,
+            endTime: _endTime
+        });
+
+        emit AddAuction(
+            _collection,
+            msg.sender,
+            _tokenId,
+            _startingPrice,
+            _endTime
+        );
+    }
+
+    /**
+     * @notice 경매를 취소한다.
+     * @param _collection: 컬렉션 주소
+     * @param _tokenId: 토큰 아이디
+     */
+    function cancelAuction(
+        address _collection,
+        uint256 _tokenId
+    ) external nonReentrant {
+        require(
+            !_collectionAddressSet.contains(_collection),
+            "Operations: Collection already listed"
+        );
+        require(
+            IERC721(_collection).supportsInterface(0x80ac58cd),
+            "Operations: Not ERC721"
+        );
+        require(
+            IERC721(_collection).ownerOf(_tokenId) == msg.sender,
+            "Operations: Not Token Owner"
+        );
+
+        delete _auctionDetails[_collection][_tokenId];
+
+        emit CancelAuction(_collection, msg.sender, _tokenId);
     }
 
     // Admin Function
