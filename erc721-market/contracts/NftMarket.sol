@@ -75,6 +75,8 @@ contract NftMarket is ERC721Holder, Ownable, ReentrancyGuard {
         uint256 price
     );
 
+    event RevenueClaim(address indexed claimer, uint256 amount);
+
     // Admin Event
     event AddCollection(
         address collection,
@@ -251,6 +253,19 @@ contract NftMarket is ERC721Holder, Ownable, ReentrancyGuard {
         );
 
         emit Trade(_collection, _tokenId, order.seller, msg.sender, _price);
+    }
+
+    /**
+     * @notice 수익 클레임
+     */
+    function claimPendingRevenue() external nonReentrant {
+        uint256 revenueToClaim = pendingRevenue[msg.sender];
+        require(revenueToClaim != 0, "Claim: Nothing to claim");
+        pendingRevenue[msg.sender] = 0;
+
+        IERC20(WBNB).safeTransfer(address(msg.sender), revenueToClaim);
+
+        emit RevenueClaim(msg.sender, revenueToClaim);
     }
 
     /**
