@@ -9,27 +9,28 @@ PRIVATE_KEY=
 ETHERSCAN_KEY=
 DEV_ALCHEMY_KEY=
 PROD_ALCHEMY_KEY=
+ADMIN_ADDRESS=
 ```
 
 ## Get Started
 
 ```
-npx hardhat run scripts/deploy.ts --network main
-npx hardhat run scripts/deploy.ts --network goerli
+npm run deploy:mainnet
+npm run deploy:testnet
 ```
 
 ## Get Test
 
 ```
-npx hardhat test
+npm run test
 ```
 
 ## Get Verify
 
 ```
-npx compile
-npx hardhat verify --network main ${contract address}
-npx hardhat verify --network goerli ${contract address}
+npm run compile
+npx hardhat verify --network mainnet ${contract address}
+npx hardhat verify --network testnet ${contract address}
 ```
 
 ## Contract Address
@@ -37,5 +38,5 @@ npx hardhat verify --network goerli ${contract address}
 ### Goerli
 
 ```
-0x5ee1551375BfE566cBb4Ac9E14add40aF2068703
+0x5ba54Ca4f5Fba613Fecd27377BaAb930A69fEfD3
 ```

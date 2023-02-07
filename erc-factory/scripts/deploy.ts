@@ -2,7 +2,7 @@ import { ethers } from "hardhat";
 
 const main = async () => {
   const contractFactory = await ethers.getContractFactory("ERCFactory");
-  const contract = await contractFactory.deploy();
+  const contract = await contractFactory.deploy(process.env.ADMIN_ADDRESS!);
   await contract.deployed();
   console.log("Contract deployed to:", contract.address);
 };

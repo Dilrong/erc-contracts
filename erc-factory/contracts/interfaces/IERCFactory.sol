@@ -11,6 +11,7 @@ interface IERCFactory {
 
     function deployNewERC721Token(
         string memory name,
-        string memory symbol
+        string memory symbol,
+        uint256 maxSupply
     ) external returns (address);
 }

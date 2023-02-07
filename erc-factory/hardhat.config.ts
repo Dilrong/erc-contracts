@@ -4,14 +4,32 @@ import "@nomicfoundation/hardhat-toolbox";
 dotEnvConfig();
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.9",
+  solidity: {
+    compilers: [
+      {
+        version: "0.8.9",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 99999,
+          },
+        },
+      },
+    ],
+  },
+  paths: {
+    sources: "./contracts",
+    tests: "./test",
+    cache: "./cache",
+    artifacts: "./artifacts",
+  },
   networks: {
-    goerli: {
+    testnet: {
       chainId: 5,
       url: `https://eth-goerli.alchemyapi.io/v2/${process.env.DEV_ALCHEMY_KEY}`,
       accounts: [process.env.PRIVATE_KEY!],
     },
-    ether: {
+    mainnet: {
       chainId: 1,
       url: `https://eth-mainnet.g.alchemy.com/v2/${process.env.PROD_ALCHEMY_KEY}`,
       accounts: [process.env.PRIVATE_KEY!],
