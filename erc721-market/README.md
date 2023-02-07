@@ -27,12 +27,12 @@ npm run test
 
 ```
 npm run compile
-npx hardhat verify --network main ${contract address}
-npx hardhat verify --network test ${contract address}
+npx hardhat verify --network mainnet ${contract address}
+npx hardhat verify --network testnet ${contract address}
 ```
 
 ## Contract Address
 
 ```
-
+0x70286F2Df2B333868bfb5aF8cF625Cb273A4Ff07
 ```
