@@ -49,6 +49,7 @@ contract ERCFactory is IERCFactory, Ownable {
             initialSupply,
             msg.sender
         );
+
         emit ERC20TokenCreated(address(token));
 
         return address(token);
@@ -65,7 +66,13 @@ contract ERCFactory is IERCFactory, Ownable {
         string memory _symbol,
         uint256 _maxSupply
     ) external onlyAdmin returns (address) {
-        ERC721Token token = new ERC721Token(_name, _symbol, _maxSupply);
+        ERC721Token token = new ERC721Token(
+            _name,
+            _symbol,
+            _maxSupply,
+            msg.sender
+        );
+
         emit ERC721TokenCreated(address(token));
 
         return address(token);

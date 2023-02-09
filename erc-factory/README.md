@@ -14,9 +14,18 @@ ADMIN_ADDRESS=
 
 ## Get Started
 
+### Ether
+
 ```
 npm run deploy:mainnet
 npm run deploy:testnet
+```
+
+### Polygon
+
+```
+npm run deploy:polygon
+npm run deploy:mumbai
 ```
 
 ## Get Test
@@ -29,7 +38,6 @@ npm run test
 
 ```
 npm run compile
-npx hardhat verify --network mainnet ${contract address}
 npx hardhat verify --network testnet ${contract address}
 ```
 
@@ -39,4 +47,10 @@ npx hardhat verify --network testnet ${contract address}
 
 ```
 0x5ba54Ca4f5Fba613Fecd27377BaAb930A69fEfD3
+```
+
+### mumbai
+
+```
+0xA41bFD9016c2E77f714408b513d75B9541B34Aa3
 ```

@@ -9,23 +9,28 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 contract ERC721Token is ERC721Enumerable, Ownable {
     using Strings for uint256;
 
+    address public adminAddress;
+
     uint256 public immutable maxSupply;
 
     string public baseURI;
 
     event Mint(address indexed to, uint256 tokenId);
     event SetBaseURI(string uri);
+    event UpdateAdmin(address indexed adminAddress);
 
     /**
      * @notice Constructor
      * @param _name: NFT 이름
      * @param _symbol: NFT 심볼
      * @param _maxSupply: NFT 총발행량
+     * @param _adminAddress: 어드민 주소
      */
     constructor(
         string memory _name,
         string memory _symbol,
-        uint256 _maxSupply
+        uint256 _maxSupply,
+        address _adminAddress
     ) ERC721(_name, _symbol) {
         require(
             (_maxSupply == 100) ||
@@ -34,6 +39,12 @@ contract ERC721Token is ERC721Enumerable, Ownable {
             "Operations: Wrong max supply"
         );
         maxSupply = _maxSupply;
+        adminAddress = _adminAddress;
+    }
+
+    modifier onlyAdmin() {
+        require(msg.sender == adminAddress, "Management: Not admin");
+        _;
     }
 
     /**
@@ -41,7 +52,7 @@ contract ERC721Token is ERC721Enumerable, Ownable {
      * @param _to: 토큰을 받는 주소
      * @param _tokenId: 토큰 아이디
      */
-    function mint(address _to, uint256 _tokenId) public {
+    function mint(address _to, uint256 _tokenId) external onlyAdmin {
         require(totalSupply() < maxSupply, "Nft: Total supply reached");
         _safeMint(_to, _tokenId);
 
@@ -52,7 +63,7 @@ contract ERC721Token is ERC721Enumerable, Ownable {
      * @notice 기본 uri를 설정한다.
      * @param _uri: base uri
      */
-    function setBaseURI(string memory _uri) external onlyOwner {
+    function setBaseURI(string memory _uri) external onlyAdmin {
         baseURI = _uri;
 
         emit SetBaseURI(_uri);
@@ -76,5 +87,20 @@ contract ERC721Token is ERC721Enumerable, Ownable {
                     abi.encodePacked(baseURI, _tokenId.toString(), ".json")
                 )
                 : "";
+    }
+
+    /**
+     * @notice 어드민 주소를 변경한다.
+     * @param _adminAddress: 어드민 주소
+     */
+    function updateAdmin(address _adminAddress) external onlyAdmin {
+        require(
+            _adminAddress != address(0),
+            "Operations: Admin address cannot be zero"
+        );
+
+        adminAddress = _adminAddress;
+
+        emit UpdateAdmin(_adminAddress);
     }
 }
