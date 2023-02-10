@@ -7,6 +7,7 @@ ERC Create Factory Contract
 ```
 PRIVATE_KEY=
 ETHERSCAN_KEY=
+POLYGONSCAN_KEY=
 DEV_ALCHEMY_KEY=
 PROD_ALCHEMY_KEY=
 ADMIN_ADDRESS=
@@ -41,12 +42,18 @@ npm run compile
 npx hardhat verify --network testnet ${contract address}
 ```
 
+### Deployed Token
+
+```
+npx hardhat run --network testnet .\scripts\verify.ts
+```
+
 ## Contract Address
 
 ### Goerli
 
 ```
-0x5ba54Ca4f5Fba613Fecd27377BaAb930A69fEfD3
+0x756310aa6Db46B2F96bE8905ED0E059472FfFE38
 ```
 
 ### mumbai
